@@ -1,6 +1,6 @@
 
-import { Address, BaseError, parseEther } from 'viem';
-import { useBalance, useSendTransaction, useWaitForTransactionReceipt } from 'wagmi';
+import { Address } from 'viem';
+import { useBalance } from 'wagmi';
 import './App.css'
 import { AppKitProvider } from './context'
 import { useDisconnect, useAppKit, useAppKitAccount } from '@reown/appkit/react'
