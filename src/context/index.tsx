@@ -29,7 +29,7 @@ const metadata = {
 }
 
 // 3. Set the networks
-const networks = [mainnet, polygon] as [AppKitNetwork, ...AppKitNetwork[]]
+export const networks = [mainnet, polygon, ] as [AppKitNetwork, ...AppKitNetwork[]]
 
 // 4. Create Wagmi Adapter
 const wagmiAdapter = new WagmiAdapter({

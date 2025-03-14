@@ -2,9 +2,10 @@
 import { Address } from 'viem';
 import { useBalance } from 'wagmi';
 import './App.css'
-import { AppKitProvider } from './context'
-import { useDisconnect, useAppKit, useAppKitAccount } from '@reown/appkit/react'
+import { AppKitProvider, networks } from './context'
+import { useDisconnect, useAppKit, useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react'
 import { useState } from 'react';
+import { SendTransaction } from './components/transaction-form.component';
 
 function App() {
   return (
@@ -25,9 +26,11 @@ export const HookList = () => {
 
   const { open } = useAppKit()
   const { disconnect } = useDisconnect();
+  const { switchNetwork, caipNetwork } = useAppKitNetwork();
   const { address, isConnected, status } = useAppKitAccount()
   const { refetch } = useBalance({
-    address: address as Address
+    address: address as Address,
+
   });
 
   const handleGetBalance = async () => {
@@ -36,6 +39,17 @@ export const HookList = () => {
   }
 
   handleGetBalance();
+
+  const handleSwitchNetwork = () => {
+    const networkNames = networks.map(x => x.name);
+    const currentNetworkIndex = networkNames.indexOf(caipNetwork!.name);
+    if (currentNetworkIndex == (networkNames.length - 1)) {
+      switchNetwork(networks[0]);
+    }
+    else {
+      switchNetwork(networks[currentNetworkIndex + 1]);
+    }
+  }
 
   return (
     <div >
@@ -46,13 +60,14 @@ export const HookList = () => {
             Address: {address}<br />
             Connected: {isConnected.toString()}<br />
             Status: {status}<br />
+            Network: {caipNetwork?.name}<br />
             <button onClick={async () => { await disconnect() }}>Disconnect</button><br />
-            {/* <button onClick={() => switchNetwork(networks[1])}>Switch</button> */}
-
-            {/* <button onClick={handleGetBalance}>Get Balance</button><br /> */}
+            <button onClick={handleSwitchNetwork}>Switch Network</button><br />
             {/* <button onClick={SendTransaction}>Get Transaction</button><br /> */}
-
             Balance: {balance}<br />
+            <br /><br /><br />
+            <p>Test transaction</p>
+            <SendTransaction />
           </div>
         )
         : <></>
