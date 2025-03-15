@@ -6,6 +6,9 @@ import { AppKitProvider, networks } from './context'
 import { useDisconnect, useAppKit, useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react'
 import { useState } from 'react';
 import { SendTransaction } from './components/transaction-form.component';
+import { readBalance_USDT } from './context/wagmi';
+import { SendUSDT } from './components/SendUSDT.component';
+import { addUSDTToMetaMask } from './context/add-USDTH';
 
 function App() {
   return (
@@ -22,7 +25,10 @@ function App() {
 
 
 export const HookList = () => {
+
+
   const [balance, setBalance] = useState('');
+  const [USDT_balance, setUSDT_balance] = useState('');
 
   const { open } = useAppKit()
   const { disconnect } = useDisconnect();
@@ -30,8 +36,13 @@ export const HookList = () => {
   const { address, isConnected, status } = useAppKitAccount()
   const { refetch } = useBalance({
     address: address as Address,
-
   });
+
+
+  const handleGetUSDTBalance = async () => {
+    const balance = await readBalance_USDT(address as Address)
+    setUSDT_balance(`${balance}`)
+  }
 
   const handleGetBalance = async () => {
     const balance = await refetch()
@@ -51,6 +62,8 @@ export const HookList = () => {
     }
   }
 
+
+
   return (
     <div >
       <button onClick={() => { open({ view: 'Connect' }) }}>Open</button> <br />
@@ -65,6 +78,11 @@ export const HookList = () => {
             <button onClick={handleSwitchNetwork}>Switch Network</button><br />
             {/* <button onClick={SendTransaction}>Get Transaction</button><br /> */}
             Balance: {balance}<br />
+            <button onClick={addUSDTToMetaMask}>Add USDT to MetaMask</button><br />
+            <button onClick={handleGetUSDTBalance}>USDT Balance on Polygon</button><br />
+            USDT Balance: {USDT_balance}<br />
+            SendUSDT
+            <SendUSDT />
             <br /><br /><br />
             <p>Test transaction</p>
             <SendTransaction />
