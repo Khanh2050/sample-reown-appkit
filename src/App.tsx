@@ -4,7 +4,7 @@ import { useBalance } from 'wagmi';
 import './App.css'
 import { AppKitProvider, networks } from './context'
 import { useDisconnect, useAppKit, useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react'
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { SendTransaction } from './components/transaction-form.component';
 import { readBalance_USDT } from './context/wagmi';
 import { SendUSDT } from './components/SendUSDT.component';
@@ -88,10 +88,10 @@ export const HookList = () => {
             <button onClick={handleGetUSDTBalance}>USDT Balance on Polygon</button><br />
             USDT Balance: {USDT_balance}<br />
             <p>Send USDT</p>
-            <SendUSDT onTransaction={async () => await handleGetUSDTBalance()} />
+            <SendUSDT />
             <br />
             <p>Test transaction</p>
-            <SendTransaction onTransaction={async () => await handleGetBalance()} />
+            <SendTransaction />
           </div>
         )
         : <></>

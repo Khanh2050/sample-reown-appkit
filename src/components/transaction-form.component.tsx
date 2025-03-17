@@ -6,7 +6,7 @@ import {
 } from 'wagmi'
 import { parseEther } from 'viem'
 
-export function SendTransaction({ onTransaction }) {
+export function SendTransaction() {
   const {
     data: hash,
     error,
@@ -20,8 +20,6 @@ export function SendTransaction({ onTransaction }) {
     const to = formData.get('address') as `0x${string}`
     const value = formData.get('value') as string
     sendTransaction({ to, value: parseEther(value) })
-
-    onTransaction();
   }
 
   const { isLoading: isConfirming, isSuccess: isConfirmed } =
