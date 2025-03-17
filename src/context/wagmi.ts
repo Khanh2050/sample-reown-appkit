@@ -61,8 +61,8 @@ export const sendUsdtTransaction = async (
     args: [recipient, amount],
   });
 
-  const hash = await walletClient.sendTransaction({
-    to: USDT_CONTRACT, 
+  await walletClient.sendTransaction({
+    to: USDT_CONTRACT,
     data: data,
   });
 

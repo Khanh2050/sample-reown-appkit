@@ -54,10 +54,6 @@ export const HookList = () => {
     setBalance(balance.toString() + " " + fetchedData?.data?.symbol.toString())
   }
 
-  useEffect(() => {
-    handleGetUSDTBalance();
-    handleGetBalance();
-  }, [isConnected])
 
   const handleSwitchNetwork = () => {
     const networkNames = networks.map(x => x.name);
@@ -86,17 +82,16 @@ export const HookList = () => {
             Network: {caipNetwork?.name}<br />
             <button onClick={async () => { await disconnect() }}>Disconnect</button><br />
             <button onClick={handleSwitchNetwork}>Switch Network</button><br />
-            {/* <button onClick={SendTransaction}>Get Transaction</button><br /> */}
+            <button onClick={handleGetBalance}>Get Balance</button><br />
             Balance: {balance}<br />
             <button onClick={addUSDTToMetaMask}>Add USDT to MetaMask</button><br />
-            {/* <button onClick={handleGetUSDTBalance}>USDT Balance on Polygon</button><br /> */}
-
+            <button onClick={handleGetUSDTBalance}>USDT Balance on Polygon</button><br />
             USDT Balance: {USDT_balance}<br />
-            SendUSDT
-            <SendUSDT />
-            <br /><br /><br />
+            <p>Send USDT</p>
+            <SendUSDT onTransaction={async () => await handleGetUSDTBalance()} />
+            <br />
             <p>Test transaction</p>
-            <SendTransaction />
+            <SendTransaction onTransaction={async () => await handleGetBalance()} />
           </div>
         )
         : <></>

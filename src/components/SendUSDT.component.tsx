@@ -3,7 +3,7 @@ import { readBalance_USDT, sendUsdtTransaction } from "../context/wagmi";
 import { useAppKitAccount } from "@reown/appkit/react";
 import { Address, parseUnits } from "viem";
 
-export function SendUSDT() {
+export function SendUSDT({ onTransaction }) {
   const [recipient, setRecipient] = useState<`0x${string}`>("0x...");
   const [amount, setAmount] = useState("10"); // Default 10 USDT
   const { address } = useAppKitAccount()
@@ -40,8 +40,8 @@ export function SendUSDT() {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
       />
-      <button onClick={handleSend} >
-
+      <button onClick={() => { handleSend(); onTransaction() }} >
+        Send
       </button>
 
     </div>
