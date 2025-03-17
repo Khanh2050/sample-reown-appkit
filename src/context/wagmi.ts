@@ -1,6 +1,18 @@
-import { createPublicClient, http, erc20Abi, Address, getAddress, parseUnits } from "viem";
+type EthereumProvider = {
+  request: (args: unknown) => Promise<unknown>;
+};
+
+import {
+  createPublicClient,
+  http,
+  erc20Abi,
+  Address,
+  getAddress,
+  createWalletClient,
+  custom,
+  encodeFunctionData,
+} from "viem";
 import { polygon } from "viem/chains";
-import { useWriteContract } from "wagmi";
 import { USDT_ABI } from "../config/USDT-Polygon.abi";
 
 const USDT_CONTRACT: `0x${string}` = getAddress(
@@ -16,6 +28,12 @@ const client = createPublicClient({
   transport: http(),
 });
 
+export const walletClient = createWalletClient({
+  account: METAMASK_ACCOUNT_2,
+  chain: polygon,
+  transport: custom(window.ethereum! as unknown as EthereumProvider),
+});
+
 export const readBalance_USDT = async (address: Address) => {
   const balance = await client.readContract({
     abi: erc20Abi,
@@ -24,45 +42,29 @@ export const readBalance_USDT = async (address: Address) => {
     args: [address as Address],
   });
 
-  return Number(balance);
+  const decimal = await client.readContract({
+    abi: erc20Abi,
+    address: USDT_CONTRACT,
+    functionName: "decimals",
+  });
+
+  return { balance, decimal };
 };
 
-export function useApproveUSDT() {
-    const { writeContract, isPending, isSuccess, isError, error } = useWriteContract();
-  
-    const approveUSDT = (spender: `0x${string}`, amount: string) => {
-      console.log("Approving USDT transfer for:", spender, "Amount:", amount);
-  
-      writeContract({
-        address: USDT_CONTRACT,
-        abi: USDT_ABI,
-        functionName: "approve",
-        args: [spender, parseUnits(amount, 6)], // Convert amount to USDT decimals
-      });
-    };
-  
-    return { approveUSDT, isPending, isSuccess, isError, error };
-  }
+export const sendUsdtTransaction = async (
+  recipient: `0x${string}`,
+  amount: bigint
+) => {
+  const data = encodeFunctionData({
+    abi: USDT_ABI,
+    functionName: "transfer",
+    args: [recipient, amount],
+  });
 
-export function useSendUSDT() {
-  const { writeContract, data, isPending, isError, isSuccess, error } =
-    useWriteContract();
+  const hash = await walletClient.sendTransaction({
+    to: USDT_CONTRACT, 
+    data: data,
+  });
 
-  const sendUSDT = (recipient: `0x${string}`, amount: string) => {
-    console.log("Sending USDT to:", recipient, "Amount:", amount);
-
-
-    try {
-      writeContract({
-        address: USDT_CONTRACT,
-        abi: USDT_ABI,
-        functionName: "transferFrom",
-        args: [METAMASK_ACCOUNT_2, recipient, parseUnits(amount, 6)],
-      });
-    } catch (err) {
-      console.error("Transaction Failed:", err);
-    }
-  };
-
-  return { sendUSDT, isPending, isSuccess, isError, error, data };
-}
+  // const receipt = await client.waitForTransactionReceipt({ hash });
+};

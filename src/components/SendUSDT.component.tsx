@@ -1,22 +1,16 @@
 import { useState } from "react";
-import { useSendUSDT } from "../context/wagmi";
-import { networks } from "../context";
-import { useAppKitNetwork } from "@reown/appkit/react";
+import { readBalance_USDT, sendUsdtTransaction } from "../context/wagmi";
+import { useAppKitAccount } from "@reown/appkit/react";
+import { Address, parseUnits } from "viem";
 
 export function SendUSDT() {
   const [recipient, setRecipient] = useState<`0x${string}`>("0x...");
   const [amount, setAmount] = useState("10"); // Default 10 USDT
+  const { address } = useAppKitAccount()
 
-
-  const { switchNetwork } = useAppKitNetwork();
-  const { sendUSDT, isPending, isSuccess, isError, error } = useSendUSDT();
-
-  const swithToPolygonNetwork = async () => {
-    const networkNames = networks.map(x => x.name);
-    const currentNetworkIndex = networkNames.indexOf('Polygon');
-
-    switchNetwork(networks[currentNetworkIndex])
-
+  const handleGetUSDTValue = async () => {
+    const result = await readBalance_USDT(address as Address)
+    return parseUnits(amount, result.decimal)
   }
 
   const handleSend = async () => {
@@ -25,11 +19,11 @@ export function SendUSDT() {
       return;
     }
 
-    await swithToPolygonNetwork();
+    // sendUSDT(recipient, await handleGetUSDTValue());
 
-    // approveUSDT(recipient, amount)
+    sendUsdtTransaction(recipient, await handleGetUSDTValue())
 
-    sendUSDT(recipient, amount);
+
   };
 
   return (
@@ -46,11 +40,10 @@ export function SendUSDT() {
         value={amount}
         onChange={(e) => setAmount(e.target.value)}
       />
-      <button onClick={handleSend} disabled={isPending}>
-        {isPending ? "Sending..." : "Send USDT"}
+      <button onClick={handleSend} >
+
       </button>
-      {isSuccess && <p>✅ Transaction Successful!</p>}
-      {isError && <p>❌ Error: {error?.message}</p>}
+
     </div>
   );
 }

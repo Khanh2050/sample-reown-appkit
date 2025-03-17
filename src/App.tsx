@@ -1,10 +1,10 @@
 
-import { Address } from 'viem';
+import { Address, formatUnits, getAddress } from 'viem';
 import { useBalance } from 'wagmi';
 import './App.css'
 import { AppKitProvider, networks } from './context'
 import { useDisconnect, useAppKit, useAppKitAccount, useAppKitNetwork } from '@reown/appkit/react'
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { SendTransaction } from './components/transaction-form.component';
 import { readBalance_USDT } from './context/wagmi';
 import { SendUSDT } from './components/SendUSDT.component';
@@ -40,16 +40,24 @@ export const HookList = () => {
 
 
   const handleGetUSDTBalance = async () => {
-    const balance = await readBalance_USDT(address as Address)
-    setUSDT_balance(`${balance}`)
+    if (!address) {
+      alert('Wallet was not connected')
+    }
+    const result = await readBalance_USDT(getAddress(address!))
+    const UsdtBalance = formatUnits(result.balance, result.decimal)
+    setUSDT_balance(`${UsdtBalance}`)
   }
 
   const handleGetBalance = async () => {
-    const balance = await refetch()
-    setBalance(balance?.data?.value.toString() + " " + balance?.data?.symbol.toString())
+    const fetchedData = await refetch()
+    const balance = formatUnits(fetchedData?.data?.value ?? BigInt(NaN), fetchedData.data?.decimals ?? NaN)
+    setBalance(balance.toString() + " " + fetchedData?.data?.symbol.toString())
   }
 
-  handleGetBalance();
+  useEffect(() => {
+    handleGetUSDTBalance();
+    handleGetBalance();
+  }, [isConnected])
 
   const handleSwitchNetwork = () => {
     const networkNames = networks.map(x => x.name);
@@ -66,7 +74,9 @@ export const HookList = () => {
 
   return (
     <div >
-      <button onClick={() => { open({ view: 'Connect' }) }}>Open</button> <br />
+      <button onClick={() => {
+        open({ view: 'Connect' });
+      }}>Open</button> <br />
       {isConnected ?
         (
           <div>
@@ -79,7 +89,8 @@ export const HookList = () => {
             {/* <button onClick={SendTransaction}>Get Transaction</button><br /> */}
             Balance: {balance}<br />
             <button onClick={addUSDTToMetaMask}>Add USDT to MetaMask</button><br />
-            <button onClick={handleGetUSDTBalance}>USDT Balance on Polygon</button><br />
+            {/* <button onClick={handleGetUSDTBalance}>USDT Balance on Polygon</button><br /> */}
+
             USDT Balance: {USDT_balance}<br />
             SendUSDT
             <SendUSDT />
